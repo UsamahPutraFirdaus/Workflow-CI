@@ -46,11 +46,11 @@ jobs:
             echo "Using existing preprocessed data"
           else
             echo "Creating sample data for demonstration"
-            echo "feature1,feature2,target,AH" > data/preprocessed_data.csv
-            echo "1.0,2.0,0,50.5" >> data/preprocessed_data.csv
-            echo "2.0,3.0,1,55.2" >> data/preprocessed_data.csv
-            echo "3.0,4.0,0,48.9" >> data/preprocessed_data.csv
-            echo "4.0,5.0,1,52.7" >> data/preprocessed_data.csv
+            echo "gender,age,hypertension,heart_disease,bmi,HbA1c_level,blood_glucose_level,smoking_history_ever,smoking_history_never,diabetes" > data/preprocessed_data.csv
+            echo "0,45,0,0,23.5,5.2,85,1,0,0" >> data/preprocessed_data.csv
+            echo "1,54,1,0,28.1,6.3,140,1,0,1" >> data/preprocessed_data.csv
+            echo "0,33,0,0,21.4,4.8,90,0,1,0" >> data/preprocessed_data.csv
+            echo "1,61,1,1,31.2,7.1,160,1,0,1" >> data/preprocessed_data.csv
           fi
           # Run MLflow Project
           python modelling.py \
