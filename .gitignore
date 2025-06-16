@@ -1,0 +1,23 @@
+# Abaikan environment
+venv/
+.env
+
+# Abaikan cache Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Abaikan file Jupyter
+.ipynb_checkpoints/
+
+# Abaikan file log sementara
+*.log
+
+# Abaikan file/folder OS
+.DS_Store
+Thumbs.db
+
+# Abaikan folder VSCode/IDE
+.vscode/
+.idea/
