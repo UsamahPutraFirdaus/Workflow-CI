@@ -47,10 +47,12 @@ jobs:
           else
             echo "Creating sample data for demonstration"
             echo "gender,age,hypertension,heart_disease,bmi,HbA1c_level,blood_glucose_level,smoking_history_ever,smoking_history_never,diabetes" > data/preprocessed_data.csv
-            echo "0,45,0,0,23.5,5.2,85,1,0,0" >> data/preprocessed_data.csv
-            echo "1,54,1,0,28.1,6.3,140,1,0,1" >> data/preprocessed_data.csv
-            echo "0,33,0,0,21.4,4.8,90,0,1,0" >> data/preprocessed_data.csv
-            echo "1,61,1,1,31.2,7.1,160,1,0,1" >> data/preprocessed_data.csv
+            echo "0,45,0,0,23.5,5.2,85,1,0,0" >> data/preprocessed_data.csv  # diabetes = 0
+            echo "1,54,1,0,28.1,6.3,140,1,0,1" >> data/preprocessed_data.csv # diabetes = 1
+            echo "0,33,0,0,21.4,4.8,90,0,1,0" >> data/preprocessed_data.csv  # diabetes = 0
+            echo "1,61,1,1,31.2,7.1,160,1,0,1" >> data/preprocessed_data.csv # diabetes = 1
+            echo "0,40,0,0,24.0,5.5,88,0,1,0" >> data/preprocessed_data.csv  # diabetes = 0
+            echo "1,50,1,0,29.0,6.8,135,1,0,1" >> data/preprocessed_data.csv # diabetes = 1
           fi
           # Run MLflow Project
           python modelling.py \
