@@ -1,0 +1,6 @@
+artifact_location: file:///home/runner/work/Workflow-CI/Workflow-CI/MLProject/mlruns/284410192659923422
+creation_time: 1750153293169
+experiment_id: '284410192659923422'
+last_update_time: 1750153293169
+lifecycle_stage: active
+name: diabetes-prediction-local
