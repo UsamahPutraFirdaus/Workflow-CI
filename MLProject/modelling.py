@@ -16,14 +16,24 @@ parser.add_argument('--test_size', type=float, default=0.2)
 parser.add_argument('--random_state', type=int, default=42)
 args = parser.parse_args()
 
-# Cek kredensial Dagshub
-if os.environ.get('DAGSHUB_TOKEN') and os.environ.get('DAGSHUB_USERNAME'):
+# Cek apakah dijalankan di GitHub Actions
+if os.environ.get('CI') == 'true':
+    print('ℹ️ CI detected. Forcing local MLflow tracking to ./mlruns')
+    os.makedirs('mlruns', exist_ok=True)
+    mlflow.set_tracking_uri('file:./mlruns')
+    mlflow.set_experiment('diabetes-prediction-local')
+    use_remote_tracking = False
+
+# Jika tidak di CI, cek kredensial Dagshub
+elif os.environ.get('DAGSHUB_TOKEN') and os.environ.get('DAGSHUB_USERNAME'):
     os.environ['MLFLOW_TRACKING_USERNAME'] = os.environ.get('DAGSHUB_USERNAME')
     os.environ['MLFLOW_TRACKING_PASSWORD'] = os.environ.get('DAGSHUB_TOKEN')
     mlflow.set_tracking_uri('https://dagshub.com/UsamahPutraFirdaus/diabetes-prediction-model.mlflow')
     mlflow.set_experiment('diabetes-prediction')
     use_remote_tracking = True
     print('✅ Using Remote MLflow tracking on Dagshub')
+
+# Jika tidak ada kredensial Dagshub, fallback ke lokal
 else:
     print('⚠️ Dagshub Credentials not found. Using local MLflow Tracking')
     os.makedirs('mlruns', exist_ok=True)
