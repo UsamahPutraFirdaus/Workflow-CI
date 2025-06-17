@@ -83,15 +83,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/${{ github.repository }}.git
-    
-          if [ -d "mlruns" ]; then
-          git add mlruns .gitattributes
-          git commit -m "Save mlruns from CI run" || echo "No changes to commit"
-          git push origin HEAD:${{ github.ref_name }}
+      
+          if [ -d "MLProject/mlruns" ]; then
+            git add MLProject/mlruns .gitattributes
+            git commit -m "Save mlruns from CI run" || echo "No changes to commit"
+            git push origin HEAD:${{ github.ref_name }}
           else
-          echo "No mlruns directory found. Skipping push."
+            echo "No mlruns directory found in MLProject. Skipping push."
           fi
-
+          
       - name: Build Docker Model
         uses: docker/build-push-action@v5
         with:
