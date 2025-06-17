@@ -3,9 +3,10 @@ import numpy as np
 import pandas as pd 
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, log_loss
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, log_loss, ConfusionMatrixDisplay
 import mlflow
-import joblib
+import mlflow.sklearn
+import matplotlib.pyplot as plt
 import os
 
 # CLI Arguments
@@ -42,10 +43,9 @@ else:
     use_remote_tracking = False
 
 # Load dataset dari argumen CLI
-data = pd.read_csv(args.data_path)
 if not os.path.exists(args.data_path):
     raise FileNotFoundError(f"❌ File data tidak ditemukan: {args.data_path}")
-
+data = pd.read_csv(args.data_path)
 
 X = data.drop('diabetes', axis=1)
 y = data['diabetes']
@@ -54,7 +54,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=args.test_size, random_state=args.random_state
 )
 
-# Autologging
+# Autologging (model logging dimatikan agar manual log_model bisa digunakan)
 mlflow.sklearn.autolog(log_models=False)
 
 with mlflow.start_run(run_name="Baseline Logistic Regression"):
@@ -62,7 +62,7 @@ with mlflow.start_run(run_name="Baseline Logistic Regression"):
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
-    # Manual logging metrics tambahan
+    # Logging metrics
     mlflow.log_metric("accuracy", accuracy_score(y_test, y_pred))
     mlflow.log_metric("precision", precision_score(y_test, y_pred))
     mlflow.log_metric("recall", recall_score(y_test, y_pred))
@@ -70,20 +70,32 @@ with mlflow.start_run(run_name="Baseline Logistic Regression"):
     mlflow.log_metric("roc_auc", roc_auc_score(y_test, model.predict_proba(X_test)[:, 1]))
     mlflow.log_metric("log_loss", log_loss(y_test, model.predict_proba(X_test)))
 
-    # Logging parameter tambahan
+    # Logging parameter
     mlflow.log_param("train_size", X_train.shape[0])
     mlflow.log_param("test_size", X_test.shape[0])
     mlflow.log_param("features_count", X.shape[1])
     mlflow.log_param("data_path", args.data_path)
 
-    # Simpan dan log model
+    # Log model ke MLflow secara lengkap
+    mlflow.sklearn.log_model(
+        sk_model=model,
+        artifact_path="model"
+    )
+
+    # Simpan model secara lokal jika diperlukan
     os.makedirs(os.path.dirname(args.model_output), exist_ok=True)
-    joblib.dump(model, args.model_output)
-    mlflow.log_artifact(args.model_output)
+    model_local_path = args.model_output
+    import joblib
+    joblib.dump(model, model_local_path)
+    print("✅ Model disimpan lokal:", model_local_path)
 
-    print("✅ Model disimpan:", args.model_output)
+    # Confusion matrix
+    fig, ax = plt.subplots(figsize=(5, 5))
+    ConfusionMatrixDisplay.from_estimator(model, X_test, y_test, ax=ax)
+    plt.tight_layout()
+    mlflow.log_figure(fig, "training_confusion_matrix.png")
 
-    # Register model (jika remote)
+    # Register model jika remote
     run_id = mlflow.active_run().info.run_id
     model_uri = f"runs:/{run_id}/model"
     registered_model_name = "diabetes-prediction"
@@ -95,7 +107,7 @@ with mlflow.start_run(run_name="Baseline Logistic Regression"):
         except Exception as e:
             print(f"❌ Failed to register model: {e}")
 
-# Simpan URL experiment DagsHub
+# Simpan URL experiment Dagshub
 if use_remote_tracking:
     with open("DagsHub.txt", "w") as f:
         f.write("https://dagshub.com/UsamahPutraFirdaus/diabetes-prediction-model.mlflow/#/experiments/0")
